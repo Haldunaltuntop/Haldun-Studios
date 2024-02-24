@@ -86,14 +86,28 @@ namespace Arc
             Entries.Add(entry);
         }
 
+        public void AddDirectory(DirectoryInfo directory)
+        {
+            ArchiveEntry[] entries = ArchiveEntry.GetEntriesFromDir(directory);
+            foreach (ArchiveEntry entry in entries)
+            {
+                AddEntry(entry);
+            }
+        }
+
         public void Serialize()
         {
-            BinaryWriter br = new BinaryWriter(File.Create(Path));
+            FileStream fs;
+            if (File.Exists(Path)) fs = File.OpenWrite(Path);
+            else fs = File.Create(Path);
+            BinaryWriter br = new BinaryWriter(fs);
 
             br.Write(MAGIC_NUMBER);
 
             foreach (ArchiveEntry entry in Entries)
             {
+                if (string.IsNullOrEmpty(entry.AbsolutePath)) continue;
+
                 br.Write(entry.FileName);
                 br.Write(entry.Extension);
                 br.Write(entry.Path);

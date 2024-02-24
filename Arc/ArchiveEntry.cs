@@ -48,17 +48,18 @@ namespace Arc
         {
             List<ArchiveEntry> entries = [];
 
-            ExploreSubDirs(directory, entries);
+            ExploreSubDirs(directory, entries, @"\");
 
             return [.. entries];
         }
 
-        public static void ExploreSubDirs(DirectoryInfo directoryInfo, List<ArchiveEntry> entries)
+        private static void ExploreSubDirs(DirectoryInfo directoryInfo, List<ArchiveEntry> entries, string parent)
         {
             FileInfo[] files = directoryInfo.GetFiles();
             foreach (FileInfo file in files)
             {
                 ArchiveEntry entry = new ArchiveEntry(file);
+                entry.Path = parent;
                 entry.Path = directoryInfo.Name;
 
                 entries.Add(entry);
@@ -67,7 +68,7 @@ namespace Arc
             DirectoryInfo[] subDirs = directoryInfo.GetDirectories();
             foreach (DirectoryInfo subDir in subDirs)
             {
-                ExploreSubDirs(subDir, entries);
+                ExploreSubDirs(subDir, entries, parent + @"\" + subDir.Parent.Name);
             }
         }
 
@@ -76,7 +77,7 @@ namespace Arc
             get { return fileName; }
             set
             {
-                fileName = @"\" + value;
+                fileName += @"\" + value;
             }
         }
 
@@ -94,8 +95,8 @@ namespace Arc
             get { return path; }
             set
             {
-                if (!string.IsNullOrEmpty(value)) path = @"\" + value;
-                else path = "";
+                if (!string.IsNullOrEmpty(value)) path += @"\" + value;
+                else path = @"\";
             }
         }
 
