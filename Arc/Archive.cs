@@ -23,26 +23,40 @@ namespace Arc
                 int magic = br.ReadInt32();
                 CheckMagic(magic);
 
-                string fileName = br.ReadString();
-                string extension = br.ReadString();
-                string path = br.ReadString();
-                string creationDate = br.ReadString();
-                long size = br.ReadInt64();
-                long dataOffset = br.ReadInt64();
+                while (StreamUtility.HasNext(br.BaseStream))
+                {
+                    string fileName = br.ReadString();
+                    string extension = br.ReadString();
+                    string path = br.ReadString();
+                    string creationDate = br.ReadString();
+                    long size = br.ReadInt64();
+                    long dataOffset = br.ReadInt64();
 
-                
-                
-                Entries.Add(new ArchiveEntry(fileName, extension, path, size, dataOffset));
+                    byte[] buffer = new byte[4096];
+                    int totalReadBytes = 0;
+                    while ((totalReadBytes += br.Read(buffer, 0, buffer.Length)) > 0)
+                    {
+                        if (totalReadBytes >= size) break;
+                    }
 
-                
+                    Entries.Add(new ArchiveEntry(fileName, extension, path, size, dataOffset));
+                }
 
                 br.Close();
             }
         }
 
+        public void ExtractAll(string outDir)
+        {
+            foreach (ArchiveEntry entry in Entries)
+            {
+                ExtractEntry(entry, outDir);
+            }
+        }
+
         public void ExtractEntry(ArchiveEntry archiveEntry, string outDir)
         {
-            Directory.CreateDirectory(outDir);
+            Directory.CreateDirectory(outDir + archiveEntry.Path);
 
             FileStream fs = File.OpenRead(Path);
             fs.Position = archiveEntry.DataOffset;
@@ -93,9 +107,9 @@ namespace Arc
                 {
                     br.Write(buffer, 0, buffer.Length);
                 }
-
-                br.Close();
             }
+
+            br.Close();
         }
     }
 }

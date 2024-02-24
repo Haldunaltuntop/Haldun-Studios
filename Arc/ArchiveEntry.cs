@@ -1,11 +1,11 @@
-﻿using System.Security.Cryptography;
+﻿using Arc.Utiliy;
 
 namespace Arc
 {
     public class ArchiveEntry
     {
         //FileName stores the file's name without its extension.
-        public string FileName { get; set; }
+        private string fileName;
 
         // Extension stores the file's extension with dot (.).
         private string extension;
@@ -39,20 +39,45 @@ namespace Arc
         {
             FileName = fileName;
             this.extension = extension;
-            this.path = path;
+            Path = path;
             Size = size;
             DataOffset = dataOffset;
         }
 
-        public ArchiveEntry(DirectoryInfo directoryInfo)
+        public static ArchiveEntry[] GetEntriesFromDir(DirectoryInfo directory)
         {
-            throw new NotImplementedException();
+            List<ArchiveEntry> entries = [];
+
+            ExploreSubDirs(directory, entries);
+
+            return [.. entries];
         }
 
-        // Reads file's contents by byte.
-        public byte[] GetContent()
+        public static void ExploreSubDirs(DirectoryInfo directoryInfo, List<ArchiveEntry> entries)
         {
-            throw new NotImplementedException();
+            FileInfo[] files = directoryInfo.GetFiles();
+            foreach (FileInfo file in files)
+            {
+                ArchiveEntry entry = new ArchiveEntry(file);
+                entry.Path = directoryInfo.Name;
+
+                entries.Add(entry);
+            }
+
+            DirectoryInfo[] subDirs = directoryInfo.GetDirectories();
+            foreach (DirectoryInfo subDir in subDirs)
+            {
+                ExploreSubDirs(subDir, entries);
+            }
+        }
+
+        public string FileName
+        {
+            get { return fileName; }
+            set
+            {
+                fileName = @"\" + value;
+            }
         }
 
         public string Extension
@@ -69,7 +94,8 @@ namespace Arc
             get { return path; }
             set
             {
-                path = @"\" + value;
+                if (!string.IsNullOrEmpty(value)) path = @"\" + value;
+                else path = "";
             }
         }
 
