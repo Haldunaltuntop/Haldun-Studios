@@ -1,6 +1,4 @@
-﻿using Arc.Utiliy;
-
-namespace Arc
+﻿namespace Arc
 {
     public class ArchiveEntry
     {
@@ -35,7 +33,7 @@ namespace Arc
             Size = file.Length;
         }
 
-        public ArchiveEntry(string fileName, string extension,  string path, long size, long dataOffset)
+        public ArchiveEntry(string fileName, string extension, string path, long size, long dataOffset)
         {
             FileName = fileName;
             this.extension = extension;

@@ -7,14 +7,15 @@ internal class Program
         ArchiveEntry entry1 = new(new FileInfo(@"C:\Users\NİRVANA\Desktop\H A L D U N\Biyoloji\1.jpg"));
         ArchiveEntry entry2 = new(new FileInfo(@"C:\Users\NİRVANA\Desktop\H A L D U N\Biyoloji\2.jpg"));
 
-        Archive archive = new Archive("Mir.arc");
+        Archive archive = new Archive("Archive.arc");
         //archive.AddDirectory(new DirectoryInfo(@"C:\Users\NİRVANA\Desktop\Mir\product"));
         //archive.AddEntry(entry2);
 
 
         //archive.Serialize();
 
-        archive.ExtractAll("MirOut");
+        //archive.ExtractAll("ArcOut");
+        archive.ExtractEntry("\\\\Mir.exe", "ArcOut");
     }
 
     private static void Main(string[] args)

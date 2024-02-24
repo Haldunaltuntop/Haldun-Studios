@@ -19,7 +19,7 @@ namespace Arc
             if (file.Exists)
             {
                 BinaryReader br = new BinaryReader(File.OpenRead(Path));
-                
+
                 int magic = br.ReadInt32();
                 CheckMagic(magic);
 
@@ -52,6 +52,40 @@ namespace Arc
             {
                 ExtractEntry(entry, outDir);
             }
+        }
+
+        public ArchiveEntry GetEntryByName(string fileName)
+        {
+            foreach (ArchiveEntry entry in Entries)
+            {
+                if (entry.FileName == fileName) return entry;
+            }
+
+            throw new Exception("Dosya bulunamadı.");
+        }
+
+        public void ExtractEntry(string fileName, string outDir)
+        {
+            ArchiveEntry archiveEntry = GetEntryByName(fileName);
+
+            Directory.CreateDirectory(outDir + archiveEntry.Path);
+
+            FileStream fs = File.OpenRead(Path);
+            fs.Position = archiveEntry.DataOffset;
+
+            // Create file
+            FileStream extractedFile = File.Create(outDir + archiveEntry.Path + archiveEntry.FileName);
+
+            byte[] buffer = new byte[4096];
+            int okunan = 0;
+            while ((okunan += fs.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                extractedFile.Write(buffer, 0, buffer.Length);
+                if (okunan > archiveEntry.Size) break;
+            }
+
+            extractedFile.Close();
+            fs.Close();
         }
 
         public void ExtractEntry(ArchiveEntry archiveEntry, string outDir)
@@ -106,7 +140,12 @@ namespace Arc
 
             foreach (ArchiveEntry entry in Entries)
             {
-                if (string.IsNullOrEmpty(entry.AbsolutePath)) continue;
+                if (string.IsNullOrEmpty(entry.AbsolutePath))
+                {
+                    continue;
+                }
+
+                br.BaseStream.Seek(0, SeekOrigin.End);
 
                 br.Write(entry.FileName);
                 br.Write(entry.Extension);

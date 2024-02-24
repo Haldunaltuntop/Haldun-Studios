@@ -1,11 +1,13 @@
 ﻿namespace Arc.Utiliy
 {
-    [Obsolete]
-    public static class ArrayUtility<T,T2>
+    public static class ArrayUtility<T>
     {
-        public static void ArrayToList(T[] source, List<T2> target)
+        public static void ArrayToList(T[] source, List<T> target)
         {
-            throw new NotImplementedException();
+            foreach (T item in source)
+            {
+                target.Add(item);
+            }
         }
     }
 }
